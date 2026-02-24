@@ -15,31 +15,75 @@ env:
   
   # Жоба -- единица работы
 jobs:
-    build-and-test:
-      runs-on: ubuntu-latest
+  restore:
+    name: Restore Dependencies
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Шаг вытягивания кода из репозитория
+      - name: Get Code From Repo
+        uses: actions/checkout@v4
       
-      steps:
-        # Шаг вытягивания кода из репозитория
-        - name: Get Code From Repo
-          uses: actions/checkout@v4
+      # Тут подготовили среду .NET
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{env.DTN_VER}}
+      
+      # Восстановили зависимости
+      - name: Restore Dependencies
+        run: dotnet restore
+      
+      - name: Cach NuGet Packs
+        uses: actions/cach@v3
+        with:
+          path: ~/.nuget/packages
+          key: ${{runner.os}}-nuget-${{hashFiles('**/*.csproj')}}
+          restore-keys: |
+            ${{runner.os}}-nuget-
+      
+  build:
+    name: Build Solution
+    runs-on: ubuntu-latest
+    needs: restore
+    
+    steps:
+      # Шаг вытягивания кода из репозитория
+      - name: Get Code From Repo
+        uses: actions/checkout@v4
+
+      # Тут подготовили среду .NET
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{env.DTN_VER}}
+      
+      - name: Restore NuGet
+        uses: action/cach@v3
+        with:
+          path: ~/.nuget/packages
+          key: ${{runner.os}}-nuget-${{hashFiles('**/*.csproj')}}
+          restore-keys: |
+            ${{runner.os}}-nuget-
+      
+      # Билдим решение
+      - name: Build Solution
+        run: dotnet build --no-restore --configuration Release
         
-        # Тут подготовили среду .NET
-        - name: Setup .NET
-          uses: actions/setup-dotnet@v4
-          with:
-            dotnet-version: ${{env.DTN_VER}}
-        
-        # Восстановили зависимости
-        - name: Restore Dependencies
-          run: dotnet restore
-        
-        # Билдим решение
-        - name: Build Solution
-          run: dotnet build --no-restore --configuration Release
-        
-        # Запускаем тесты
-        - name: Run unit tests
-          run: dotnet test --no-build --configuration Release --verbosity normal
+      - name: Artifacts Save
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-output
+          path: |
+            **/bin/Release/
+            **/obj/Project.assert.json
+          retention-day: 1
+
+      # Запускаем тесты
+      - name: Run unit tests
+        run: dotnet test --no-build --configuration Release --verbosity normal
+      
+      
         
         
         
@@ -60,6 +104,8 @@ jobs:
         
         
         
+        
+    
     
     
   
