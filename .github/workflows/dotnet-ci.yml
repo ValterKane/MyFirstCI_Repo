@@ -34,14 +34,6 @@ jobs:
       - name: Restore Dependencies
         run: dotnet restore
       
-      - name: Cach NuGet Packs
-        uses: actions/cach@v3
-        with:
-          path: ~/.nuget/packages
-          key: ${{runner.os}}-nuget-${{hashFiles('**/*.csproj')}}
-          restore-keys: |
-            ${{runner.os}}-nuget-
-      
   build:
     name: Build Solution
     runs-on: ubuntu-latest
@@ -70,15 +62,6 @@ jobs:
       - name: Build Solution
         run: dotnet build --no-restore --configuration Release
         
-      - name: Artifacts Save
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-output
-          path: |
-            **/bin/Release/
-            **/obj/Project.assert.json
-          retention-day: 1
-
       # Запускаем тесты
       - name: Run unit tests
         run: dotnet test --no-build --configuration Release --verbosity normal
