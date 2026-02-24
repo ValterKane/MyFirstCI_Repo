@@ -29,4 +29,15 @@ public class WeatherControllerTests
         }
         
     }
+    
+    [Fact]
+    public void Get_ReturnSixValue()
+    {
+        // Arrange
+        var controller = new WeatherController();
+        // Act
+        var result = controller.Get();
+        // Assert
+        Assert.Equal(6, result.Length);
+    }
 }
