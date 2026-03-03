@@ -39,7 +39,7 @@ jobs:
         with:
           path: ~/.nuget/packages
           key: ${{runner.os}}-nuget-${{hashFiles('**/*.csproj')}}
-          restore-key: |
+          restore-keys: |
             ${{runner.os}}-nuget-
       
   build:
@@ -59,12 +59,12 @@ jobs:
           dotnet-version: ${{env.DTN_VER}}
       
       - name: Restore NuGet
-        uses: action/cach@v3
+        uses: actions/cache@v3
         with:
           path: ~/.nuget/packages
-          key: ${{runner.os}}-nuget-${{hashFiles('**/*.csproj')}}
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
           restore-keys: |
-            ${{runner.os}}-nuget-
+            ${{ runner.os }}-nuget-
       
       # Билдим решение
       - name: Build Solution
