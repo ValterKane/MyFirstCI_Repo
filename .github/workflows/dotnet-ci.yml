@@ -33,6 +33,14 @@ jobs:
       # Восстановили зависимости
       - name: Restore Dependencies
         run: dotnet restore
+        
+      - name: Cache Dependencies
+        uses: action/cache@v3
+        with:
+          path: ~/.nuget/packages
+          key: ${{runner.os}}-nuget-${{hashFiles('**/*.csproj')}}
+          restore-key: |
+            ${{runner.os}}-nuget-
       
   build:
     name: Build Solution
