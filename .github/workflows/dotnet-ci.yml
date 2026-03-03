@@ -63,13 +63,21 @@ jobs:
         with:
           path: ~/.nuget/packages
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
-          restore-keys: |
-            ${{ runner.os }}-nuget-
+          
+      - name: Verify Restore
+        run: |
+          if [ -d "~/.nuget/packages"] && [ "$(ls -A ~/.nuget/packages)" ]; then
+            echo "NuGet Restore"
+            echo "Cache size: $(du -sh ~/.nuget/packages | cut -f1)"
+          else
+            echo "NuGet cache is empty"
+            dotnet restore
+          fi
             
       
       # Билдим решение
       - name: Build Solution
-        run: dotnet build --configuration Release
+        run: dotnet build --configuration Release --no-restore
         
       # Запускаем тесты
       - name: Run unit tests
