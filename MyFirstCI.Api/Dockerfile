@@ -4,7 +4,7 @@ WORKDIR /app
 COPY . .
 
 RUN dotnet restore
-RUN dotnet publish .\MyFirstCI.Api\MyFirstCI.Api.csproj -c Release -o logout
+RUN dotnet publish ./MyFirstCI.Api/MyFirstCI.Api.csproj -c Release -o out
 
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS release
 WORKDIR /app
